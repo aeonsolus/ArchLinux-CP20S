@@ -3,8 +3,10 @@
 """Read-only GPT inspector for an image or block-device readback."""
 
 import argparse
+import fcntl
 import json
 import os
+import stat
 import struct
 import sys
 import uuid
@@ -91,7 +93,11 @@ def main():
     args = parser.parse_args()
     try:
         with open(args.input, "rb", buffering=0) as stream:
-            size = os.fstat(stream.fileno()).st_size
+            info = os.fstat(stream.fileno())
+            if stat.S_ISBLK(info.st_mode):
+                size = struct.unpack("Q", fcntl.ioctl(stream.fileno(), 0x80081272, b"\0" * 8))[0]
+            else:
+                size = info.st_size
             if not size:
                 raise ValueError("input has zero apparent size")
             result = read_gpt(stream, size)

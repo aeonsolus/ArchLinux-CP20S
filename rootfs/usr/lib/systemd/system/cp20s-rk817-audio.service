@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore CP20S RK817 speaker route after ALSA state restore
+ConditionPathExists=/dev/snd/controlC0
+Wants=alsa-restore.service
+After=alsa-restore.service
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cp20s-rk817-audio-boot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

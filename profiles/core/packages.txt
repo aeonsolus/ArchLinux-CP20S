@@ -1,0 +1,9 @@
+# Intended Arch Linux ARM core packages. Availability must be checked against
+# the pinned AArch64 repository snapshot used for each release build.
+base
+linux-firmware
+networkmanager
+sudo
+systemd
+util-linux
+vim

@@ -1,0 +1,19 @@
+# Intended tablet desktop package set; not yet resolved against a pinned repo.
+gdm
+gnome-control-center
+gnome-session
+gnome-shell
+gnome-settings-daemon
+gnome-terminal
+gnome-tweaks
+gnome-keyring
+gnome-browser-connector
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+alsa-utils
+bluez
+bluez-utils
+mesa
+vulkan-panfrost

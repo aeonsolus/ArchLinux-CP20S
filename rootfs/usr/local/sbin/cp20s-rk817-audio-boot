@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+card=rockchiprk817
+jack_control=45
+
+if ! /usr/bin/amixer -c "$card" cget "numid=$jack_control" >/dev/null 2>&1; then
+    /usr/bin/logger -t cp20s-rk817-audio "RK817 headphone-jack control is unavailable; leaving audio route unchanged"
+    exit 1
+fi
+
+jack_state=$(/usr/bin/amixer -c "$card" cget "numid=$jack_control" | /usr/bin/sed -n 's/^  : values=//p')
+case "$jack_state" in
+    off)
+        /usr/bin/amixer -q -c "$card" cset name='Playback Path' SPK
+        /usr/bin/amixer -q -c "$card" cset name='spk switch' on
+        /usr/bin/amixer -q -c "$card" cset name='Speaker Switch' on
+        /usr/bin/logger -t cp20s-rk817-audio "enabled the internal speaker route; headphone jack is unplugged"
+        ;;
+    on)
+        /usr/bin/logger -t cp20s-rk817-audio "headphones are connected; leaving the headphone route untouched"
+        ;;
+    *)
+        /usr/bin/logger -t cp20s-rk817-audio "unrecognized headphone-jack state '$jack_state'; leaving audio route unchanged"
+        exit 1
+        ;;
+esac

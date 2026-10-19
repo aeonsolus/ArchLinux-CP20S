@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+
+cpu_policy=/sys/devices/system/cpu/cpufreq/policy0
+gpu_devfreq=/sys/class/devfreq/ff320000.gpu
+dmc_devfreq=/sys/class/devfreq/dmc
+
+wait_for_writable() {
+    path=$1
+    tries=0
+    while [ "$tries" -lt 30 ]; do
+        [ -w "$path" ] && return 0
+        tries=$((tries + 1))
+        sleep 1
+    done
+    echo "Timed out waiting for writable sysfs path: $path" >&2
+    return 1
+}
+
+wait_for_writable "$cpu_policy/scaling_governor"
+wait_for_writable "$gpu_devfreq/governor"
+wait_for_writable "$dmc_devfreq/governor"
+
+# Retain the complete stock frequency range; schedutil will select lower OPPs
+# and their existing voltage table entries when CPU load is low.
+printf '%s\n' 408000 > "$cpu_policy/scaling_min_freq"
+printf '%s\n' 2016000 > "$cpu_policy/scaling_max_freq"
+printf '%s\n' schedutil > "$cpu_policy/scaling_governor"
+
+printf '%s\n' 300000000 > "$gpu_devfreq/min_freq"
+printf '%s\n' 900000000 > "$gpu_devfreq/max_freq"
+printf '%s\n' simple_ondemand > "$gpu_devfreq/governor"
+
+printf '%s\n' 324000000 > "$dmc_devfreq/min_freq"
+printf '%s\n' 920000000 > "$dmc_devfreq/max_freq"
+printf '%s\n' dmc_ondemand > "$dmc_devfreq/governor"

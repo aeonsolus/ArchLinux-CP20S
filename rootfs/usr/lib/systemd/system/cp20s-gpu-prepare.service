@@ -1,0 +1,12 @@
+[Unit]
+Description=Prepare CP20S Panfrost for GNOME Shell/Mutter
+After=systemd-udev-trigger.service rk-power-tune.service
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cp20s-gpu-prepare
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target

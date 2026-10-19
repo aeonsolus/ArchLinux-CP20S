@@ -1,0 +1,17 @@
+post_install() {
+	# Keep CPU policy ownership with the CP20S adaptive governor service.
+	# The GUI service remains disabled to avoid competing at boot.
+	echo ":: Enabling cpupower-gui-helper service"
+	systemctl enable cpupower-gui-helper.service
+}
+
+post_upgrade() {
+	# Keep CPU policy ownership with the CP20S adaptive governor service.
+	# The GUI service remains disabled to avoid competing at boot.
+	echo ":: Enabling cpupower-gui-helper service"
+	systemctl enable cpupower-gui-helper.service
+}
+pre_remove() {
+	systemctl disable cpupower-gui-helper.service
+	systemctl disable cpupower-gui.service
+}

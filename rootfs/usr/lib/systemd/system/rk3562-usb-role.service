@@ -1,0 +1,19 @@
+[Unit]
+Description=Keep the CP20S RK3562 USB-C port in device mode
+After=local-fs.target systemd-udevd.service
+Before=multi-user.target
+ConditionPathExists=/sys/devices/platform/ff740000.usb2-phy/otg_mode
+Conflicts=usb-role-manager.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/cp20s/rk3562-usb-role.py
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/sys/devices/platform/ff740000.usb2-phy/otg_mode /sys/kernel/debug/usb/fe500000.usb/mode
+
+[Install]
+WantedBy=multi-user.target

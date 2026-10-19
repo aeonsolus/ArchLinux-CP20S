@@ -1,0 +1,20 @@
+name: Source checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  source-checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install --yes ripgrep
+      - name: Check shell syntax and release tree
+        run: bash scripts/host/check-release-tree.sh
+      - name: Test GPT inspector
+        run: python3 -m unittest discover -s tests/host -v

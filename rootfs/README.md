@@ -1,0 +1,7 @@
+# Root filesystem overlay
+
+This directory contains a cpupower-gui Extreme Performance profile, CP20S power/GPU preparation services, and a small optional USB-C device-mode helper. It is not a root filesystem or a complete hardware enablement bundle.
+
+The profile is copied to `/etc/cpupower_gui.d/extreme-performance.profile`; cpupower-gui discovers it without changing the existing `Performance` profile or default selection. The CP20S package in [`../packages/cpupower-gui/`](../packages/cpupower-gui/) fixes an upstream positional-argument parser defect that otherwise prevents the CLI and GUI from starting. The profile uses `schedutil` across the stock 408–2016 MHz CPU range, so the CPU can select lower OPPs and their bin-selected stock voltages at low demand while keeping the stock ceiling available. The boot services apply adaptive GPU/DMC governors, prepare the Panfrost render node, and allow GPU runtime autosuspend. They do not pin the CPU at 2016 MHz, change regulator voltages, or add unsupported CPU/GPU/DMC operating points. See [`../profiles/power/README.md`](../profiles/power/README.md) for the measured ceilings and voltage-bin details.
+
+The USB-C service is shipped disabled. Before enabling it, verify both sysfs paths on the target kernel and confirm that device/peripheral mode is the intended permanent USB-C policy. The service does not attempt to enter host mode. The host helper refuses to overwrite different files and never enables the unit automatically.

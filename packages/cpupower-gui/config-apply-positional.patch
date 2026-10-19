@@ -1,0 +1,10 @@
+diff --git a/cpupower_gui/cpupower-gui.in b/cpupower_gui/cpupower-gui.in
+--- a/cpupower_gui/cpupower-gui.in
++++ b/cpupower_gui/cpupower-gui.in
+@@ -267,4 +267,5 @@ config_sub = subparsers.add_parser("config", aliases=["co"])
+ config_sub.add_argument(
+-    "apply", action="store_true", help="apply cpupower configuration",
++    "apply", nargs="?", choices=("apply",), default="apply",
++    help="apply cpupower configuration",
+ )
+ config_sub.set_defaults(func=set_config)

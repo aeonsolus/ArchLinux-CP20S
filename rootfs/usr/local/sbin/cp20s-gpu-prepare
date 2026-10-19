@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+GPU=/sys/bus/platform/devices/ff320000.gpu
+if [ "$(basename "$(readlink "$GPU/driver" 2>/dev/null || true)")" != panfrost ]; then
+  if ! grep -q '^cp20s_gpu_irq ' /proc/modules; then
+    insmod /usr/local/lib/cp20s/cp20s_gpu_irq.ko
+  fi
+  echo ff320000.gpu > /sys/bus/platform/drivers/panfrost/bind
+fi
+[ "$(basename "$(readlink "$GPU/driver")")" = panfrost ]
+node=
+for render in /sys/class/drm/renderD*; do
+  [ "$(basename "$(readlink "$render/device/driver")")" = panfrost ] && node=/dev/dri/$(basename "$render")
+done
+[ -n "$node" ] || exit 1
+if [ ! -c "$node" ]; then
+  dev=$(cat "$render/dev")
+  major=${dev%:*}
+  minor=${dev#*:}
+  mknod -m 660 "$node" c "$major" "$minor"
+  chown root:render "$node"
+fi
+[ -c "$node" ]
+
+# Governor and frequency limits are owned by cp20s-adaptive-governors.service.
+# Allow the GPU to runtime-suspend between rendering work to reduce idle draw.
+echo auto > "$GPU/power/control"
+[ "$(cat "$GPU/power/control")" = auto ]
+
+udevadm settle --timeout=5
+[ -c /dev/dri/by-path/platform-ff320000.gpu-render ]
+printf 'Panfrost ready with runtime power management enabled; Mutter render device %s\n' "$node"

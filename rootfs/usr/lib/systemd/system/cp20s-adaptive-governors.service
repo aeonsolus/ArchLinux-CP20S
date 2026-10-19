@@ -1,0 +1,13 @@
+[Unit]
+Description=Use adaptive stock OPPs on the CP20S for lower idle thermals
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+ConditionPathExists=/sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cp20s-adaptive-governors
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
